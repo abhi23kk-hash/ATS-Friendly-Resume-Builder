@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | ATS Resume Builder</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body id="dashboard-page" class="layout-app">
+
+    <!-- Background Shapes Array for uniform branding -->
+    <div class="bg-shapes" style="opacity: 0.6;">
+        <div class="shape shape-1" style="width: 30vw; height: 30vw; background: rgba(0, 150, 255, 0.4);"></div>
+        <div class="shape shape-2" style="width: 25vw; height: 25vw; right: -5%; top: 20%; background: rgba(255, 0, 127, 0.3);"></div>
+        <div class="shape shape-3" style="width: 40vw; height: 40vw; left: 10%; bottom: -10%; background: rgba(138, 43, 226, 0.4);"></div>
+    </div>
+
+    <!-- 3D Glass Sidebar -->
+    <aside class="sidebar premium-glass panel-glow">
+        <div class="sidebar-header">
+            <span class="logo-icon"><i class="fa-solid fa-file-contract neon-text-blue"></i></span>
+            <span class="logo-text font-bold text-white">Resume<span class="neon-text-blue">Pro</span></span>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="dashboard.html" class="active"><i class="fa-solid fa-house"></i> Dashboard</a></li>
+            <li><a href="builder.html"><i class="fa-solid fa-file-signature"></i> Create Resume</a></li>
+            <li><a href="#"><i class="fa-regular fa-file"></i> Create Template</a></li>
+            <li><a href="templates.html"><i class="fa-solid fa-layer-group"></i> ATS Templates</a></li>
+            <li><a href="#"><i class="fa-solid fa-folder-open"></i> My Resumes</a></li>
+            <li><a href="#"><i class="fa-solid fa-gear"></i> Settings</a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <a href="#" id="logout-btn" class="logout-link"><i class="fa-solid fa-power-off"></i> Logout</a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div class="user-greeting">
+                <p class="text-muted reveal text-sm">Welcome Back, User!</p>
+                <h2 class="reveal neon-text-blue" style="font-size: 2rem;">Resume Builder Dashboard</h2>
+            </div>
+            <div class="topbar-actions reveal">
+                <div class="premium-glass icon-btn"><i class="fa-solid fa-bell"></i></div>
+                <div class="premium-glass icon-btn"><i class="fa-solid fa-user"></i></div>
+            </div>
+        </header>
+
+        <!-- Metrics Top Row -->
+        <section class="metrics-grid mt-4">
+            <div class="metric-card premium-glass panel-glow hover-lift reveal" style="transition-delay: 0.1s;">
+                <div class="metric-icon"><i class="fa-solid fa-file-lines"></i></div>
+                <div class="metric-info">
+                    <h3>Resumes Created</h3>
+                    <h2 id="stat-resumes">0</h2>
+                </div>
+            </div>
+
+            <div class="metric-card premium-glass panel-glow hover-lift reveal" style="transition-delay: 0.2s;">
+                <div class="metric-icon"><i class="fa-solid fa-download"></i></div>
+                <div class="metric-info">
+                    <h3>Downloads</h3>
+                    <h2 id="stat-downloads">0</h2>
+                </div>
+            </div>
+
+            <div class="metric-card premium-glass panel-glow hover-lift reveal" style="transition-delay: 0.3s;">
+                <div class="metric-icon"><i class="fa-solid fa-eye"></i></div>
+                <div class="metric-info">
+                    <h3>Profile Views</h3>
+                    <h2 id="stat-views">0</h2>
+                </div>
+            </div>
+
+            <div class="metric-card premium-glass panel-glow hover-lift reveal" style="transition-delay: 0.4s;">
+                <div class="metric-icon"><i class="fa-solid fa-chart-line"></i></div>
+                <div class="metric-info">
+                    <h3>ATS Score Average</h3>
+                    <h2 id="stat-ats-avg">0/100</h2>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard Complex Grid -->
+        <section class="dashboard-bento mt-4">
+            <!-- Progress Section Box -->
+            <div class="dash-section premium-glass panel-glow reveal bento-progress">
+                <div class="section-header">
+                    <h3>Resume Creation Progress</h3>
+                    <i class="fa-solid fa-ellipsis"></i>
+                </div>
+                
+                <div class="progress-display">
+                    <div class="progress-circle-wrap">
+                        <svg viewBox="0 0 36 36" class="circular-chart neon-blue">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path class="circle" id="dash-progress-circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <text x="18" y="17" class="percentage" id="dash-progress-pct">0%</text>
+                            <text x="18" y="24" class="progress-text" id="dash-progress-status">Not Started</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="checklist">
+                    <div class="check-item checked">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span>Complete Your Resume</span>
+                        <i class="fa-solid fa-xmark close-icon"></i>
+                    </div>
+                    <div class="check-item sub-item checked">
+                        <i class="fa-solid fa-check text-success"></i> <span>Personal Info</span>
+                    </div>
+                    <div class="check-item sub-item checked">
+                        <i class="fa-solid fa-check text-success"></i> <span>Skills</span>
+                    </div>
+                    <div class="check-item sub-item">
+                        <i class="fa-regular fa-square"></i> <span>Experience</span>
+                    </div>
+                    <div class="check-item sub-item">
+                        <i class="fa-regular fa-square"></i> <span>Education</span>
+                    </div>
+                </div>
+                
+                <div class="glow-bar-bottom"></div>
+            </div>
+
+            <!-- Recent Resumes Box -->
+            <div class="dash-section premium-glass panel-glow reveal bento-recent">
+                <div class="section-header">
+                    <h3>Recent Resumes</h3>
+                    <i class="fa-solid fa-xmark"></i>
+                </div>
+                
+                <div class="recent-resume-cards" id="recent-resumes-container">
+                    <!-- Resumes will be injected here via JS -->
+                    <div style="color: #88a; text-align: center; padding: 20px;">No resumes created yet. Head over to the builder to create one!</div>
+                </div>
+            </div>
+
+             <!-- Popular Templates Box -->
+             <div class="dash-section premium-glass panel-glow reveal bento-templates">
+                <div class="section-header">
+                    <h3>Popular Templates</h3>
+                    <i class="fa-solid fa-xmark"></i>
+                </div>
+                <div class="template-gallery">
+                    <div class="template-item hover-lift">
+                        <div class="template-mock"></div>
+                        <button class="btn-xxs btn-neon">Select Image</button>
+                    </div>
+                    <div class="template-item hover-lift">
+                        <div class="template-mock"></div>
+                        <button class="btn-xxs btn-neon">Select Image</button>
+                    </div>
+                    <div class="template-item hover-lift">
+                        <div class="template-mock"></div>
+                        <button class="btn-xxs btn-neon">Select Image</button>
+                    </div>
+                    <div class="template-item hover-lift">
+                        <div class="template-mock"></div>
+                        <button class="btn-xxs btn-neon">Select Image</button>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

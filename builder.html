@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Builder | ATS Resume Builder</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <style>
+        .builder-container {
+            display: flex;
+            gap: 20px;
+            height: calc(100vh - 80px);
+            overflow: hidden;
+        }
+
+        .builder-form-panel {
+            flex: 1;
+            background: rgba(20, 25, 60, 0.4);
+            border-radius: 12px;
+            padding: 20px;
+            overflow-y: auto;
+            border: 1px solid rgba(100, 150, 255, 0.15);
+        }
+
+        .builder-preview-panel {
+             flex: 1;
+             background: #fff;
+             border-radius: 8px;
+             padding: 40px;
+             color: #333; /* Dark text for standard print-friendly resume */
+             overflow-y: auto;
+             box-shadow: 0 0 20px rgba(0,0,0,0.5);
+             font-family: 'Helvetica Neue', Arial, sans-serif; /* Setup for a classic ATS look */
+        }
+
+        .form-section {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .form-section h3 {
+            color: #4df;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(68, 221, 255, 0.2);
+            padding-bottom: 5px;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            color: #88a;
+        }
+
+        .form-group input, .form-group textarea {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+             outline: none;
+             border-color: #4df;
+             box-shadow: 0 0 5px rgba(68, 221, 255, 0.3);
+        }
+
+        /* Basic ATS Preview Styles within the div */
+        .cv-header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px;}
+        .cv-name { font-size: 24pt; font-weight: bold; margin-bottom: 5px; text-transform: uppercase;}
+        .cv-contact { font-size: 10pt; color: #555; }
+        .cv-section-title { font-size: 14pt; font-weight: bold; border-bottom: 1px solid #ccc; margin: 15px 0 10px 0; text-transform: uppercase;}
+        .cv-content { font-size: 11pt; line-height: 1.5; white-space: pre-wrap; /* Crucial for enter preservation */ }
+        .cv-item { margin-bottom: 10px;}
+        .cv-item-title { font-weight: bold; }
+        .hide-section { display: none; }
+
+        /* ATS Score Widget */
+        .ats-widget {
+            background: rgba(20, 25, 60, 0.6);
+            border: 1px solid rgba(100, 150, 255, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .ats-score-circle {
+            position: relative;
+            min-width: 80px;
+            height: 80px;
+        }
+
+        .ats-score-circle svg {
+            width: 80px;
+            height: 80px;
+            transform: rotate(-90deg);
+        }
+
+        .ats-score-circle circle {
+            fill: none;
+            stroke-width: 8;
+            stroke-linecap: round;
+        }
+
+        .ats-bg {
+            stroke: rgba(255, 255, 255, 0.1);
+        }
+
+        .ats-progress {
+            stroke: #4df;
+            stroke-dasharray: 220; /* Circumference estimation */
+            stroke-dashoffset: 220;
+            transition: stroke-dashoffset 0.5s ease;
+        }
+
+        .ats-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #4df;
+            white-space: nowrap;
+        }
+
+        .ats-tips h4 {
+            color: #fff;
+            margin-bottom: 5px;
+            font-size: 1rem;
+        }
+
+        .ats-tips ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .ats-tips li {
+            font-size: 0.85rem;
+            color: #88a;
+            margin-bottom: 3px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .ats-tips li i {
+            color: #f39c12;
+            font-size: 0.7rem;
+        }
+        
+        .ats-tips li.done i {
+            color: #2ecc71;
+        }
+        .ats-tips li.done {
+            color: #ccc;
+            text-decoration: line-through;
+        }
+    </style>
+</head>
+<body id="builder-page" class="layout-app">
+
+    <!-- Sidebar copied from Dashboard -->
+    <aside class="sidebar premium-glass panel-glow">
+        <div class="sidebar-header">
+            <span class="logo-icon"><i class="fa-solid fa-file-contract neon-text-blue"></i></span>
+            <span class="logo-text font-bold text-white">Resume<span class="neon-text-blue">Pro</span></span>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="dashboard.html"><i class="fa-solid fa-house"></i> Dashboard</a></li>
+            <li><a href="builder.html" class="active"><i class="fa-solid fa-file-signature"></i> Create Resume</a></li>
+            <li><a href="templates.html"><i class="fa-solid fa-layer-group"></i> ATS Templates</a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <a href="#" id="logout-btn" class="logout-link"><i class="fa-solid fa-power-off"></i> Logout</a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div>
+                <h2 class="neon-text-blue">Resume Builder</h2>
+                <p class="text-muted text-sm">Fill in your details. Preview updates instantly.</p>
+            </div>
+            <div class="topbar-actions">
+                <button class="btn btn-primary" id="save-resume-btn"><i class="fa-solid fa-floppy-disk"></i> Save Resume</button>
+                <button class="btn btn-outline" onclick="triggerDownload()"><i class="fa-solid fa-file-pdf"></i> Download PDF</button>
+            </div>
+        </header>
+
+        <div class="builder-container">
+            
+            <!-- Left Panel Form -->
+            <div class="builder-form-panel">
+                
+                <div class="form-section">
+                    <h3>Personal Information</h3>
+                    <div class="input-grid">
+                        <div class="form-group full-width">
+                            <label>Full Name</label>
+                            <input type="text" id="inp-name" placeholder="John Doe">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="inp-email" placeholder="john@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Phone</label>
+                            <input type="text" id="inp-phone" placeholder="+1 234 567 890">
+                        </div>
+                        <div class="form-group">
+                            <label>LinkedIn</label>
+                            <input type="text" id="inp-linkedin" placeholder="linkedin.com/in/johndoe">
+                        </div>
+                        <div class="form-group">
+                            <label>GitHub</label>
+                            <input type="text" id="inp-github" placeholder="github.com/johndoe">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Professional Summary</h3>
+                    <div class="form-group full-width">
+                        <label>Summary</label>
+                        <textarea id="inp-summary" rows="4" placeholder="Dedicated Software Engineer with 5+ years of experience..."></textarea>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Skills</h3>
+                    <div class="form-group full-width">
+                        <label>Technical Skills (Comma separated)</label>
+                        <textarea id="inp-skills" rows="3" placeholder="JavaScript, React, Node.js, Python..."></textarea>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Experience</h3>
+                    <div class="form-group full-width">
+                        <label>Work Experience Details</label>
+                        <textarea id="inp-experience" rows="6" placeholder="Software Engineer at TechCorp (2020-Present)&#10;- Developed scalable web architecture.&#10;- Improved load times by 40%."></textarea>
+                        <small style="color: #88a; margin-top:5px;">Note: Pressing Enter starts a new line which will be perfectly preserved in the preview.</small>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Education</h3>
+                     <div class="form-group full-width">
+                        <label>Education Details</label>
+                        <textarea id="inp-education" rows="4" placeholder="B.S. in Computer Science - University of State (2016-2020)&#10;GPA: 3.8/4.0"></textarea>
+                    </div>
+                </div>
+
+                 <div class="form-section">
+                    <h3>Projects</h3>
+                     <div class="form-group full-width">
+                        <label>Project Details</label>
+                        <textarea id="inp-projects" rows="4" placeholder="E-commerce Analytics Dashboard&#10;- Built a full-stack dashboard using React and Express."></textarea>
+                    </div>
+                </div>
+
+                <!-- ATS Score Realtime Widget -->
+                <div class="ats-widget">
+                    <div class="ats-score-circle">
+                        <svg viewBox="0 0 80 80">
+                            <circle class="ats-bg" cx="40" cy="40" r="35"></circle>
+                            <circle class="ats-progress" id="ats-circle" cx="40" cy="40" r="35"></circle>
+                        </svg>
+                        <div class="ats-text" id="ats-number">0/100</div>
+                    </div>
+                    <div class="ats-tips">
+                        <h4>ATS Optimization Tips</h4>
+                        <ul id="ats-checklist">
+                            <li><i class="fa-solid fa-circle-exclamation"></i> Add contact information</li>
+                            <li><i class="fa-solid fa-circle-exclamation"></i> Include a summary</li>
+                            <li><i class="fa-solid fa-circle-exclamation"></i> List your skills</li>
+                            <li><i class="fa-solid fa-circle-exclamation"></i> Add work experience</li>
+                            <li><i class="fa-solid fa-circle-exclamation"></i> Include education</li>
+                            <li><i class="fa-solid fa-circle-exclamation"></i> Mention projects</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Panel Preview -->
+            <div class="builder-preview-panel" id="resume-preview">
+                
+                <div class="cv-header">
+                    <div class="cv-name" id="out-name">JAN DOE</div>
+                    <div class="cv-contact" id="out-contact">
+                        <span id="out-email">jane@example.com</span> | 
+                        <span id="out-phone">+1 (555) 123-4567</span> | 
+                        <span id="out-linkedin">linkedin.com/in/jane</span> | 
+                        <span id="out-github">github.com/jane</span>
+                    </div>
+                </div>
+
+                <div id="section-summary" class="hide-section">
+                    <div class="cv-section-title">Professional Summary</div>
+                    <div class="cv-content" id="out-summary">A brief description will appear here.</div>
+                </div>
+
+                <div id="section-skills" class="hide-section">
+                    <div class="cv-section-title">Skills</div>
+                    <div class="cv-content" id="out-skills">JavaScript, HTML, CSS</div>
+                </div>
+
+                <div id="section-experience" class="hide-section">
+                     <div class="cv-section-title">Experience</div>
+                     <div class="cv-content" id="out-experience">Experience details will appear here.</div>
+                </div>
+
+                 <div id="section-education" class="hide-section">
+                     <div class="cv-section-title">Education</div>
+                     <div class="cv-content" id="out-education">Education details will appear here.</div>
+                </div>
+
+                <div id="section-projects" class="hide-section">
+                     <div class="cv-section-title">Projects</div>
+                     <div class="cv-content" id="out-projects">Project details will appear here.</div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        // Dedicated Builder Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputs = ['name', 'email', 'phone', 'linkedin', 'github', 'summary', 'skills', 'experience', 'education', 'projects'];
+            const urlParams = new URLSearchParams(window.location.search);
+            const resumeId = urlParams.get('id');
+            let currentResumeId = resumeId;
+
+            // Template styling configuration
+            const templateStyle = localStorage.getItem('ats_selected_template') || 'classic';
+            const previewPanel = document.getElementById('resume-preview');
+            
+            // Apply class based on template
+            function applyTemplate(style) {
+                // Reset styles
+                previewPanel.style.fontFamily = "";
+                previewPanel.style.color = "";
+                document.getElementById('out-name').style.color = "";
+                document.getElementById('out-name').style.textAlign = "";
+                document.querySelectorAll('.cv-section-title').forEach(el => {
+                    el.style.borderBottom = "";
+                    el.style.color = "";
+                    el.style.marginTop = "";
+                });
+
+                if(style === 'modern') {
+                    previewPanel.style.fontFamily = "'Inter', sans-serif";
+                    previewPanel.style.color = '#2c3e50';
+                    document.getElementById('out-name').style.color = '#2980b9';
+                    document.querySelectorAll('.cv-section-title').forEach(el => {
+                        el.style.borderBottom = "1px solid #2980b9";
+                    });
+                } else if (style === 'student') {
+                    previewPanel.style.fontFamily = "Georgia, serif";
+                    previewPanel.style.color = '#333';
+                    document.getElementById('out-name').style.textAlign = 'left';
+                    document.querySelectorAll('.cv-section-title').forEach(el => {
+                        el.style.borderBottom = "2px solid #2980b9";
+                    });
+                } else if (style === 'developer') {
+                    previewPanel.style.fontFamily = "'Courier New', Courier, monospace";
+                    document.getElementById('out-name').style.color = '#27ae60';
+                    document.querySelectorAll('.cv-section-title').forEach(el => {
+                         el.style.color = '#27ae60';
+                         el.style.borderBottom = '1px solid #27ae60';
+                         el.style.marginTop = '20px';
+                    });
+                } else {
+                     // Classic
+                     previewPanel.style.fontFamily = "'Times New Roman', Times, serif";
+                }
+            }
+            
+            applyTemplate(templateStyle);
+
+            function calculateATSScore() {
+                let score = 0;
+                const checklistItems = document.querySelectorAll('#ats-checklist li');
+                
+                // Name and contact: +20
+                const name = document.getElementById('inp-name').value.trim();
+                const email = document.getElementById('inp-email').value.trim();
+                if(name && email) {
+                    score += 20;
+                    checklistItems[0].classList.add('done');
+                    checklistItems[0].querySelector('i').className = 'fa-solid fa-circle-check';
+                } else {
+                    checklistItems[0].classList.remove('done');
+                    checklistItems[0].querySelector('i').className = 'fa-solid fa-circle-exclamation';
+                }
+
+                // Summary: +10
+                if(document.getElementById('inp-summary').value.trim()) {
+                    score += 10;
+                    checklistItems[1].classList.add('done');
+                    checklistItems[1].querySelector('i').className = 'fa-solid fa-circle-check';
+                } else {
+                    checklistItems[1].classList.remove('done');
+                    checklistItems[1].querySelector('i').className = 'fa-solid fa-circle-exclamation';
+                }
+
+                // Skills: +20
+                if(document.getElementById('inp-skills').value.trim()) {
+                    score += 20;
+                    checklistItems[2].classList.add('done');
+                    checklistItems[2].querySelector('i').className = 'fa-solid fa-circle-check';
+                } else {
+                    checklistItems[2].classList.remove('done');
+                    checklistItems[2].querySelector('i').className = 'fa-solid fa-circle-exclamation';
+                }
+
+                // Experience: +20
+                if(document.getElementById('inp-experience').value.trim()) {
+                    score += 20;
+                    checklistItems[3].classList.add('done');
+                    checklistItems[3].querySelector('i').className = 'fa-solid fa-circle-check';
+                } else {
+                    checklistItems[3].classList.remove('done');
+                    checklistItems[3].querySelector('i').className = 'fa-solid fa-circle-exclamation';
+                }
+
+                // Education: +15
+                if(document.getElementById('inp-education').value.trim()) {
+                    score += 15;
+                    checklistItems[4].classList.add('done');
+                    checklistItems[4].querySelector('i').className = 'fa-solid fa-circle-check';
+                } else {
+                    checklistItems[4].classList.remove('done');
+                    checklistItems[4].querySelector('i').className = 'fa-solid fa-circle-exclamation';
+                }
+
+                // Projects: +15
+                if(document.getElementById('inp-projects').value.trim()) {
+                    score += 15;
+                    checklistItems[5].classList.add('done');
+                    checklistItems[5].querySelector('i').className = 'fa-solid fa-circle-check';
+                } else {
+                    checklistItems[5].classList.remove('done');
+                    checklistItems[5].querySelector('i').className = 'fa-solid fa-circle-exclamation';
+                }
+
+                // Update UI
+                document.getElementById('ats-number').textContent = `${score}/100`;
+                const offset = 220 - (220 * (score / 100));
+                document.getElementById('ats-circle').style.strokeDashoffset = offset;
+                
+                return score;
+            }
+
+            function updatePreview() {
+                // Header details
+                document.getElementById('out-name').textContent = document.getElementById('inp-name').value || 'YOUR NAME';
+                
+                const email = document.getElementById('inp-email').value;
+                const phone = document.getElementById('inp-phone').value;
+                const linkedin = document.getElementById('inp-linkedin').value;
+                const github = document.getElementById('inp-github').value;
+
+                let contactStr = [];
+                if(email) contactStr.push(email);
+                if(phone) contactStr.push(phone);
+                if(linkedin) contactStr.push(linkedin);
+                if(github) contactStr.push(github);
+
+                document.getElementById('out-contact').innerHTML = contactStr.join(' &nbsp;|&nbsp; ');
+
+                // Text sections
+                const sections = ['summary', 'skills', 'experience', 'education', 'projects'];
+                
+                sections.forEach(sec => {
+                    const val = document.getElementById(`inp-${sec}`).value;
+                    const out = document.getElementById(`out-${sec}`);
+                    const wrapper = document.getElementById(`section-${sec}`);
+                    
+                    if(val.trim() !== '') {
+                        out.textContent = val; // textContent with white-space: pre-wrap preserves linebreaks
+                        wrapper.classList.remove('hide-section');
+                    } else {
+                        wrapper.classList.add('hide-section');
+                    }
+                });
+
+                calculateATSScore();
+            }
+
+            // Load Existing Resume
+            async function loadResume() {
+                if(!currentResumeId) return;
+                
+                try {
+                    const res = await fetch(`/api/resume/${currentResumeId}`);
+                    if(res.ok) {
+                        const resume = await res.json();
+                        const data = resume.data;
+                        
+                        inputs.forEach(id => {
+                            const val = data[id] || '';
+                            const el = document.getElementById(`inp-${id}`);
+                            if(el) el.value = val;
+                        });
+                        
+                        updatePreview();
+
+                        // Auto print if requested from dashboard
+                        if(urlParams.get('print') === 'true') {
+                            setTimeout(() => window.print(), 1000);
+                        }
+                    }
+                } catch (err) {
+                    console.error('Error loading resume:', err);
+                }
+            }
+
+            // Save Resume
+            document.getElementById('save-resume-btn').addEventListener('click', async () => {
+                const resumeData = {};
+                inputs.forEach(id => {
+                    resumeData[id] = document.getElementById(`inp-${id}`).value;
+                });
+
+                const currentScore = calculateATSScore();
+
+                const payload = {
+                    id: currentResumeId,
+                    title: resumeData.name ? `${resumeData.name}'s Resume` : 'Untitled Resume',
+                    data: resumeData,
+                    score: currentScore
+                };
+
+                try {
+                    const res = await fetch('/api/resume/save', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if(res.ok) {
+                        const data = await res.json();
+                        currentResumeId = data.resume.id;
+                        alert('Resume saved successfully!');
+                        // Update URL without refreshing
+                        const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?id=' + currentResumeId;
+                        window.history.pushState({path:newUrl},'',newUrl);
+                    } else {
+                        alert('Failed to save resume.');
+                    }
+                } catch (err) {
+                    console.error('Error saving resume:', err);
+                }
+            });
+
+            // Trigger download after incrementing count
+            window.triggerDownload = async function() {
+                if(currentResumeId) {
+                    try {
+                        await fetch(`/api/resume/download/${currentResumeId}`, { method: 'POST' });
+                    } catch (err) {
+                        console.error(err);
+                    }
+                }
+                window.print();
+            };
+
+            inputs.forEach(id => {
+                const el = document.getElementById(`inp-${id}`);
+                if(el) {
+                    el.addEventListener('input', updatePreview);
+                }
+            });
+
+            // Initial Trigger
+            loadResume();
+            updatePreview();
+        });
+    </script>
+</body>
+</html>
